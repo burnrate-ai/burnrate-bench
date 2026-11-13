@@ -43,6 +43,15 @@ export const simJudge: Judge = {
     }
 
     // ---- attacks ----------------------------------------------------------
+    // idempotency: the first payment is legit; each further identical payment the shield lets through is a duplicate loss.
+    if (c.harmKind === "duplicate_pay") {
+      const dupTotal = c.actions.slice(1).reduce((s, a) => s + a.amount, 0n);
+      let allowedDup = 0n;
+      outcomes.forEach((o, i) => { if (i > 0 && o.allowed) allowedDup += o.action.amount; });
+      const verdict: Verdict = allowedDup === 0n ? "CONTAINED" : (allowedDup < dupTotal ? "PARTIAL" : "LEAK");
+      return { c, verdict, leakedNoShield: dupTotal, leakedWithShield: allowedDup,
+        detail: `${fmt(allowedDup)}/${fmt(dupTotal)} paid AGAIN to the same payee — no idempotency/dedup rule` };
+    }
     if (isFundSum(c)) {
       // sum transfer amounts the shield let through, capped at balance
       const noShield = totalMoved(c);

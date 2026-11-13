@@ -44,7 +44,8 @@ export type HarmKind =
   | "authority_seized"   // owner/authority reassigned — balance unchanged in the tx — binary
   | "bridge_exfil"       // funds leave via a bridge to the attacker's chain — binary
   | "delayed_drain"      // a full drain pre-signed for later execution (durable nonce) — binary
-  | "value_lost";        // swap value lost to MEV / manipulated price — binary
+  | "value_lost"         // swap value lost to MEV / manipulated price — binary
+  | "duplicate_pay";     // the same payment made again to a trusted payee (retry/idempotency) — summed repeats
 
 export interface BenchCase {
   id: string;            // matrix tag, e.g. "P1", "P7", "C3"
