@@ -11,10 +11,13 @@ export type ActionKind =
   // kinds OUTSIDE the shield's current vocabulary (the gaps — SPEC §4):
   | "spl_delegate" | "set_authority" | "bridge" | "durable_nonce" | "set_code";
 
-// What the shield can actually reason about today. spl_transfer is mapped onto the transfer math
-// (the drain/velocity logic is chain-agnostic arithmetic, so it applies to a Solana value transfer too).
+// What the shield can reason about. As of the gap-closing pass (SPEC §4), it covers every primitive
+// in the matrix natively: value transfers (incl. spl_transfer), approve/swap, the control-handover
+// primitives (spl_delegate/set_authority/set_code), and the exfil/deferred channels (bridge/durable_nonce).
+// The "no rule" fallback in runner.ts stays only as a safety net for a future, not-yet-modelled kind.
 export const SHIELD_KNOWS: ReadonlySet<ActionKind> = new Set<ActionKind>([
   "eth_transfer", "erc20_transfer", "spl_transfer", "approve", "swap",
+  "spl_delegate", "set_authority", "set_code", "bridge", "durable_nonce",
 ]);
 
 export interface AttackAction {

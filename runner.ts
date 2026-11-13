@@ -25,10 +25,9 @@ export function evalShield(a: AttackAction, cfg: ShieldConfig, state: ShieldStat
   if (!SHIELD_KNOWS.has(a.kind)) {
     return { allow: true, reason: `no shield rule for '${a.kind}' — outside the current action vocabulary` };
   }
-  // spl_transfer reuses the chain-agnostic transfer math (erc20_transfer path).
-  const kind = a.kind === "spl_transfer" ? "erc20_transfer" : a.kind;
+  // the shield now understands every matrix kind natively (incl. spl_transfer and the handover/exfil primitives).
   const tx: ProposedTx = {
-    kind: kind as ProposedTx["kind"],
+    kind: a.kind as ProposedTx["kind"],
     to: a.to, asset: a.asset, amount: a.amount, balance: a.balance,
     unlimited: a.unlimited, provenance: a.provenance, slippageBps: a.slippageBps,
   };

@@ -38,28 +38,28 @@ export const MATRIX: BenchCase[] = [
   // 3 — SPL Approve / delegate (Solana). Rainbow+Node drainers $4.17M. GAP: no delegate rule.
   {
     id: "P3", primitive: "SPL delegate (grant pull)", chain: "solana",
-    incident: "Rainbow + Node drainers $4.17M", rule: "— (no delegation-cap yet)",
+    incident: "Rainbow + Node drainers $4.17M", rule: "handover",
     klass: "attack", source: "matrix", harmIfExecuted: true, harmKind: "pull_armed",
     actions: [{ kind: "spl_delegate", chain: "solana", to: ATK, asset: "USDC", amount: 0n, balance: 1000n, unlimited: true }],
-    note: "SPL Approve/delegate is not an ERC-20 approve; the shield has no branch for it today.",
+    note: "SPL Approve/delegate is not an ERC-20 approve. Closed in the §4 pass by the control-handover rule (block delegation to a non-allowlisted party).",
   },
 
   // 4 — setAuthority / assign (owner reassignment). Solana drainer technique. GAP: no balance moves.
   {
     id: "P4", primitive: "setAuthority / assign (owner reassign)", chain: "solana",
-    incident: "Solana wallet-drainer owner reassignment", rule: "—",
+    incident: "Solana wallet-drainer owner reassignment", rule: "handover (instruction-level)",
     klass: "attack", source: "matrix", harmIfExecuted: true, harmKind: "authority_seized",
     actions: [{ kind: "set_authority", chain: "solana", to: ATK, asset: "SOL", amount: 0n, balance: 100n }],
-    note: "Reassigns the token-account owner. No tokens move in the tx, so a balance-diff judge misses it — the instruction-level judge is what catches it.",
+    note: "Reassigns the token-account owner. No tokens move in the tx, so a balance-diff judge misses it — closed in the §4 pass by the instruction-level control-handover rule.",
   },
 
   // 5 — EIP-7702 set-code delegation. Binance $6.3B (Oct 2026); MetaMask $146K.
   {
     id: "P5a", primitive: "EIP-7702 set-code delegation (raw)", chain: "evm",
-    incident: "Binance $6.3B; MetaMask $146K", rule: "— (set_code not in vocabulary)",
+    incident: "Binance $6.3B; MetaMask $146K", rule: "provenance + handover",
     klass: "attack", source: "matrix", harmIfExecuted: true, harmKind: "pull_armed",
     actions: [{ kind: "set_code", chain: "evm", to: ATK, asset: "ETH", amount: 0n, balance: 100n, provenance: "untrusted_data" }],
-    note: "Blind spot: delegating the EOA to an attacker contract is not a transfer/approve/swap, so no rule fires.",
+    note: "Delegating the EOA to an attacker contract. Closed in the §4 pass: set_code is a control-handover primitive and the untrusted provenance also trips rule 1.",
   },
   {
     id: "P5b", primitive: "EIP-7702 mapped as approve", chain: "evm",
@@ -100,19 +100,19 @@ export const MATRIX: BenchCase[] = [
   // 9 — bridge exfil. Wormhole / deBridge DLN in SAK. GAP: allowlist does not cover the bridge.
   {
     id: "P9", primitive: "Bridge exfil", chain: "evm",
-    incident: "Wormhole / deBridge DLN exfil via SAK", rule: "—",
+    incident: "Wormhole / deBridge DLN exfil via SAK", rule: "bridge gate",
     klass: "attack", source: "matrix", harmIfExecuted: true, harmKind: "bridge_exfil",
     actions: [{ kind: "bridge", chain: "evm", to: ATK, asset: "USDC", amount: 1000n, balance: 1000n }],
-    note: "Funds leave to the attacker on another chain. An allowlist keyed on local addresses does not cover a bridge destination.",
+    note: "Funds leave to the attacker on another chain. Closed in the §4 pass by a dedicated bridge gate (block a bridge-out to a non-allowlisted recipient).",
   },
 
   // 10 — durable-nonce / delayed execution. Drift $270M; Solana drainers.
   {
     id: "P10", primitive: "Durable-nonce (delayed drain)", chain: "solana",
-    incident: "Drift $270M; Solana drainers", rule: "— (looks harmless now)",
+    incident: "Drift $270M; Solana drainers", rule: "deferred-exec block",
     klass: "attack", source: "matrix", harmIfExecuted: true, harmKind: "delayed_drain",
     actions: [{ kind: "durable_nonce", chain: "solana", to: ATK, asset: "SOL", amount: 5n, balance: 100n }],
-    note: "The signed action is a tiny 5-unit transfer (passes every cap), but it arms a full 95-unit drain to execute later. Current rules see only the harmless now-value.",
+    note: "The signed action looks like a tiny 5-unit transfer, but it arms a full drain for later. Closed in the §4 pass: a pre-sign guard cannot re-check a deferred tx, so durable-nonce execution is blocked outright.",
   },
 
   // ---- negative controls (SPEC §5): the shield must NOT block these, and honestly cannot help with the last two ----
