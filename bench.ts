@@ -9,6 +9,7 @@
 import { MATRIX } from "./matrix.js";
 import { defaultConfig, runAll } from "./runner.js";
 import { simJudge } from "./judge.js";
+import { startForkJudge } from "./fork-judge.js";
 import { report } from "./report.js";
 import type { BenchCase } from "./types.js";
 
@@ -27,6 +28,19 @@ async function loadRedAgentCases(): Promise<BenchCase[]> {
 async function main() {
   const redAgent = await loadRedAgentCases();
   const cases = [...MATRIX, ...redAgent];
+
+  if (process.env.JUDGE === "fork") {
+    console.log("(judge: LIVE FORK — starting anvil, replaying actions on-chain, 0 real funds)");
+    const fork = startForkJudge();
+    try {
+      const results = runAll(cases, defaultConfig(), fork.judge);
+      report(results);
+    } finally {
+      fork.stop();
+    }
+    return;
+  }
+
   const results = runAll(cases, defaultConfig(), simJudge);
   report(results);
 }
