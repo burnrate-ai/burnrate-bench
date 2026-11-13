@@ -1,0 +1,14 @@
+{
+  "name": "burnrate-bench",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Independent benchmark for an AI-agent wallet containment layer (Burnrate Shield).",
+  "scripts": {
+    "bench": "tsx bench.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
