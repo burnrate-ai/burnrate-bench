@@ -45,7 +45,7 @@ export function report(results: CaseResult[]): void {
   const fails = results.filter(r => r.verdict === "LEAK" || r.verdict === "PARTIAL" || r.verdict === "FALSE_BLOCK");
   console.log("\n--- where the shield does NOT fully hold (SPEC §4 roadmap) ---");
   if (fails.length === 0) {
-    console.log("  none in this corpus — add red-agent (A) cases before trusting that.");
+    console.log("  none in this corpus — add adversarial cases before trusting that.");
   } else {
     for (const r of fails) {
       console.log(`  ${pad(r.c.id, 5)} ${pad(r.verdict, 12)} ${r.c.primitive}`);

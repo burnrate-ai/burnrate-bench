@@ -53,7 +53,7 @@ export interface BenchCase {
   incident: string;      // real-world case this primitive is abstracted from (SPEC source C)
   rule: string;          // shield rule it maps to, or "—" when there is none
   klass: CaseClass;
-  source: "matrix" | "dataset" | "redagent";  // redagent cases come from the PRIVATE attacker repo
+  source: "matrix" | "dataset" | "redagent";  // redagent = cases from an optional external corpus (not in this repo)
   actions: AttackAction[];
   harmIfExecuted: boolean; // GROUND TRUTH: does executing these actions harm the victim?
   harmKind?: HarmKind;

@@ -3,8 +3,8 @@
 // Small integer balances keep the math auditable by eye; the live fork judge (step 2) replays the
 // same actions against anvil/surfpool and reads real balances instead of the declared ground truth.
 //
-// This file is intentionally PUBLIC. The red-team agent (core A) that *invents* new attacks is NOT
-// here — it lives in the private burnrate-attacker repo and plugs in as source:"redagent".
+// This file is intentionally PUBLIC. A red-team generator that *invents* new attacks is NOT here —
+// it lives in a separate, unpublished corpus and plugs in as source:"redagent".
 
 import { BenchCase } from "./types.js";
 
