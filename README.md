@@ -51,6 +51,10 @@ Verified against two third-party harnesses with real agents (see `RESULTS_*.md`)
 - **AgentKit** (Sepolia / EVM): a real agent under injection — 4 models self-refused; the shield blocked the direct drain (real tx).
 - **SolVerdict** (Solana, surfpool mainnet fork): scenario A2 (full drain), `n=20` — new shield **20/20 (100%)**, old vault 0/20, bare agent 0/20.
 
+## Credits
+
+- The **duplicate-payment / idempotency** attack class (P11 — retry after a fake "payment failed", pay the same payee again) comes from **[Clearance](https://github.com/Selliksss/clearance)** by Lev (Selliksss). It drove the shield's dedup rule and the honest-repeat controls (two invoices / renewal with an idempotency key) that keep it from blocking legitimate repeats.
+
 ## Ecosystem
 
 - [`burnrate-shield`](../burnrate-shield) — the containment layer under test.

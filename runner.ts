@@ -30,6 +30,7 @@ export function evalShield(a: AttackAction, cfg: ShieldConfig, state: ShieldStat
     kind: a.kind as ProposedTx["kind"],
     to: a.to, asset: a.asset, amount: a.amount, balance: a.balance,
     unlimited: a.unlimited, provenance: a.provenance, slippageBps: a.slippageBps,
+    idempotencyKey: a.idempotencyKey,
   };
   return inspect(tx, cfg, state);
 }
