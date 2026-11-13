@@ -13,10 +13,11 @@ import { Judge, ShieldOutcome } from "./judge.js";
 // Default owner policy. One allowlisted dest, 50% single-tx drain cap, 50% velocity cap, 3% slippage.
 export function defaultConfig(): ShieldConfig {
   return {
-    allowlist: new Set<string>(["0xowner"]),
+    allowlist: new Set<string>(["0xowner", "0xvendor", "0xpayroll"]),
     maxFractionBps: 5000,
     velocityCapBps: 5000,
     maxSlippageBps: 300,
+    recurringPayees: new Set<string>(["0xpayroll"]), // owner pre-authorized recurring payments to payroll only
   };
 }
 
@@ -30,7 +31,6 @@ export function evalShield(a: AttackAction, cfg: ShieldConfig, state: ShieldStat
     kind: a.kind as ProposedTx["kind"],
     to: a.to, asset: a.asset, amount: a.amount, balance: a.balance,
     unlimited: a.unlimited, provenance: a.provenance, slippageBps: a.slippageBps,
-    idempotencyKey: a.idempotencyKey,
   };
   return inspect(tx, cfg, state);
 }

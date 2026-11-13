@@ -53,7 +53,7 @@ Verified against two third-party harnesses with real agents (see `RESULTS_*.md`)
 
 ## Credits
 
-- The **duplicate-payment / idempotency** attack class (P11 — retry after a fake "payment failed", pay the same payee again) comes from **[Clearance](https://github.com/Selliksss/clearance)** by Lev (Selliksss). It drove the shield's dedup rule and the honest-repeat controls (two invoices / renewal with an idempotency key) that keep it from blocking legitimate repeats.
+- The **duplicate-payment / idempotency** attack class (P11 / G6 / G39 / G9 — retry after a fake "payment failed", "release the pending amount", "pay the remainder") comes from **[Clearance](https://github.com/Selliksss/clearance)** by Lev (Selliksss). It drove the shield's **guard-owned** dedup rule (agent-supplied idempotency keys are not trusted — the agent is the one being deceived; honest repeats are authorized by the owner, not the agent), the honest-repeat controls (two different invoices / owner-authorized recurring payroll), and the honest residual **G9** (a different-amount "remainder" needs a system-owned payment operation, not a pre-sign rule).
 
 ## Ecosystem
 

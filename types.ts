@@ -30,7 +30,6 @@ export interface AttackAction {
   unlimited?: boolean;        // approve: unlimited allowance?
   provenance?: "user" | "untrusted_data";
   slippageBps?: number;       // swap slippage
-  idempotencyKey?: string;    // dedup: a fresh key marks a genuinely new payment (honest repeat vs replay)
 }
 
 export type CaseClass =

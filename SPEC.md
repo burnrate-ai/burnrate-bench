@@ -59,7 +59,9 @@ This is the test matrix. Each primitive is abstracted from a real incident and a
 3. ✅ **Durable-nonce / "harmless now" (#10).** A pre-signed tx executes later; a pre-sign guard cannot re-check it. Closed: durable-nonce / deferred execution is blocked as a class.
 4. ⬜ **Limit-unlock via an on-chain action.** In the Grok case a gifted NFT removed the agent's limits. If the guard config is mutable by the agent, that is a gap. The config must live below the agent and not change by its actions. (A deployment invariant, not an `inspect()` rule.)
 
-**Residual (honest):** P7 drip — velocity caps cumulative outflow at the cap (~50%), i.e. a full drain is prevented but a share leaks before the cap bites. A design trade-off, not a bug. True independence rests on: (a) the two OUT-OF-LAYER limits (raw-key, contract bug), and (b) the residual itself. 99.2% is over known incidents, not "the shield is unbreakable".
+**Idempotency (Clearance class, P11 / G6 / G39 / G9).** Duplicate-payment retries ("payment failed, pay again" / "release the pending amount") are blocked by a **guard-owned** dedup rule: an agent-supplied idempotency key is NOT trusted, because the agent is the one being deceived and a tricked retry will mint a fresh key. Honest repeats are authorized by the **owner** (`cfg.recurringPayees`), not by the agent. **Residual (honest):** a duplicate with a DIFFERENT amount — a fake "remainder" (Clearance **G9**) or an off-by-one — is not caught by amount-keyed dedup. Closing it needs a **system-owned payment operation** (the guard owns the open payment; a retry reuses it, as in Penstock's fix), not a pre-sign rule. Surfaced by [Clearance](https://github.com/Selliksss/clearance).
+
+**Residual (honest):** P7 drip — velocity caps cumulative outflow at the cap (~50%), i.e. a full drain is prevented but a share leaks before the cap bites. A design trade-off, not a bug. True independence rests on: (a) the two OUT-OF-LAYER limits (raw-key, contract bug), and (b) the residuals themselves. 99.2% is over known incidents, not "the shield is unbreakable".
 
 ---
 
