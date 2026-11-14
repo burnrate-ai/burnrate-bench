@@ -63,7 +63,12 @@ This is the test matrix. Each primitive is abstracted from a real incident and a
 
 **Lookalike payee under the caps (Clearance G39), closed by strict mode.** Clearance's live Path B run found a 2-NEAR payment to the lookalike `sh0p.sandbox` slipping through: with an allowlist that only *feeds* the drain/velocity thresholds, a small payment (2% of balance) to an unknown account sits under the 50% caps and passes. For a payment agent with a **fixed payee list**, this is closed by an opt-in **`strictAllowlist`** mode — any payee that is neither allowlisted nor an owner-authorized recurring payee is blocked outright, regardless of amount. Off by default, because a general-purpose wallet may legitimately pay new one-off destinations. **Chain-result note (also from Clearance):** `inspect()` records the dedup key at allow-time, before the on-chain result is known; if the send reverts, the integrator calls `rollbackPay(state, tx, cfg)` so the owner's honest retry is not blocked as a phantom duplicate.
 
-**Residual (honest):** P7 drip — velocity caps cumulative outflow at the cap (~50%), i.e. a full drain is prevented but a share leaks before the cap bites. A design trade-off, not a bug. True independence rests on: (a) the two OUT-OF-LAYER limits (raw-key, contract bug), and (b) the residuals themselves. 99.2% is over known incidents, not "the shield is unbreakable".
+**Residuals (honest), published on purpose:**
+- **P7 drip** — velocity caps cumulative outflow at the cap (~50%); a full drain is prevented but a share leaks before the cap bites. A design trade-off, not a bug.
+- **RA1** — a single transfer at 49% sits just under the 50% single-tx cap and passes. The cost of a percentage cap; mitigated by a lower cap or an approval step. **Found by the private red agent, frozen into the public matrix as a static case** (`source:"redagent"`).
+- **FZ2** — a swap at exactly the 3% slippage cap passes (the rule blocks `> cap`, not `>= cap`); realized loss ≈ 3%. **Found by the boundary fuzzer, frozen in.**
+
+The red-team **generator** stays in a private corpus; its **findings** are frozen into `matrix.ts` so every number reproduces with `npm run bench` — the weapon stays private, the lesson is public. True independence rests on: (a) the two OUT-OF-LAYER limits (raw-key, contract bug), and (b) these residuals themselves. ~97.3% is over known incidents, not "the shield is unbreakable".
 
 ---
 

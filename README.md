@@ -32,15 +32,23 @@ JUDGE=fork npx tsx bench.ts    # LIVE fork judge: anvil auto-starts, actions exe
 
 | | count |
 |---|---|
-| ✅ CONTAINED | 11 |
+| ✅ CONTAINED | 13 |
 | 🟠 PARTIAL | 1 (drip — velocity caps at ~50%) |
-| ❌ LEAK | 0 |
-| ✅ PASS (legit) | 2 |
+| ❌ LEAK | 3 (honest residuals — see below) |
+| ✅ PASS (legit) | 4 |
 | ⚪ OUT-OF-LAYER | 2 (raw-key, contract bug) |
 
-~**0.8%** of modelled loss still gets through (was ~49% before the fix). Gaps for SPL-delegate, setAuthority, set-code, bridge and durable-nonce were closed by extending the `shield.ts` rule vocabulary, not by fitting the tests.
+~**2.7%** of modelled loss still gets through (was ~49% before the gap-closing pass). The known incident primitives (SPL-delegate, setAuthority, set-code, bridge, durable-nonce) are all closed by extending the `shield.ts` rule vocabulary, not by fitting the tests.
 
-**Honest framing:** 99.2% is over *known* incident primitives. Independence rests on the benchmark still showing a residual (P7 drip) and two OUT-OF-LAYER limits it openly cannot cover.
+**The residuals are published on purpose — this is what keeps the bench honest:**
+- **P7 (PARTIAL)** — velocity caps cumulative outflow at ~50%; a drip leaks a share before the cap bites. Design trade-off.
+- **G9 (LEAK)** — a different-amount "remainder" duplicate; amount-keyed dedup can't catch it. Needs a system-owned payment op (credit: Clearance).
+- **RA1 (LEAK)** — a single 49% transfer sits just under the 50% single-tx cap. The cost of a percentage cap; mitigated by a lower cap or an approval step. **Found by the private red agent, frozen here as a static case.**
+- **FZ2 (LEAK)** — a swap at exactly the 3% slippage cap passes (the rule blocks `> cap`, not `>= cap`). Realized loss ≈ 3%. **Found by the boundary fuzzer, frozen here.**
+
+The red-team **generator** stays in a private corpus; its **findings** (RA1, FZ2) are frozen into the public matrix so every number here reproduces with `npm run bench`. The weapon stays private, the lesson is public — the responsible-disclosure split.
+
+**Honest framing:** 97.3% is over *known* incident primitives, not a claim the shield is unbreakable. Independence rests on these four residuals plus the two OUT-OF-LAYER limits the guard openly cannot cover.
 
 **Cross-validation:** the offline and the live fork judge agree on every cross-checkable case — the fork judge measured P7-drip as exactly **40/100 wei** actually reaching the attacker, and the legit payment at 0.
 

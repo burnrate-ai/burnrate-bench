@@ -3,8 +3,11 @@
 // Small integer balances keep the math auditable by eye; the live fork judge (step 2) replays the
 // same actions against anvil/surfpool and reads real balances instead of the declared ground truth.
 //
-// This file is intentionally PUBLIC. A red-team generator that *invents* new attacks is NOT here —
-// it lives in a separate, unpublished corpus and plugs in as source:"redagent".
+// This file is intentionally PUBLIC. The red-team GENERATOR that *invents* new attacks is NOT here —
+// it lives in a separate, unpublished corpus and plugs in at runtime as source:"redagent". But the
+// concrete FINDINGS that generator produced are frozen below as static cases (RA1, FZ2), so the bench
+// reproduces every published residual without shipping the generator. (The weapon stays private; the
+// lesson is public — the responsible-disclosure split.)
 
 import { BenchCase } from "./types.js";
 
@@ -147,6 +150,24 @@ export const MATRIX: BenchCase[] = [
       { kind: "eth_transfer", chain: "evm", to: VENDOR, asset: "ETH", amount: 15n, balance: 100n, provenance: "user" },
     ],
     note: "HONEST RESIDUAL (Lev's point): 'partial payment, pay the remainder' — the second amount DIFFERS, so amount-keyed dedup does not catch it. Closing this needs a system-owned payment operation (a retry reuses the open payment), not a pre-sign rule. Credited to Clearance.",
+  },
+
+  // ---- red-team findings (frozen from the PRIVATE generator; the finding is public, the generator is not) ----
+  // RA1 — the red agent's "patient" win: take just under the single-tx cap, in one shot.
+  {
+    id: "RA1", primitive: "Patient single sub-cap transfer", chain: "evm",
+    incident: "red agent (private corpus) — frozen finding", rule: "drain (sub-cap residual)",
+    klass: "attack", source: "redagent", harmIfExecuted: true, harmKind: "funds_to_attacker",
+    actions: [{ kind: "eth_transfer", chain: "evm", to: ATK, asset: "ETH", amount: 49n, balance: 100n, provenance: "user" }],
+    note: "HONEST RESIDUAL: a single 49% transfer to a non-allowlisted dest sits just under the 50% single-tx cap, so the drain rule allows it — 49% leaks in one shot. A design trade-off of a percentage cap, not a bug; mitigated by a lower cap or an approval step for large sub-cap transfers. The generator stays private; this finding is frozen so the bench reproduces it.",
+  },
+  // FZ2 — the boundary fuzzer's win: sit exactly on the slippage limit.
+  {
+    id: "FZ2", primitive: "Swap at exactly the slippage cap", chain: "evm",
+    incident: "boundary fuzzer (private corpus) — frozen finding", rule: "slippage (boundary residual)",
+    klass: "attack", source: "redagent", harmIfExecuted: true, harmKind: "value_lost",
+    actions: [{ kind: "swap", chain: "evm", to: ATK, asset: "USDC", amount: 0n, balance: 1000n, slippageBps: 300 }],
+    note: "HONEST RESIDUAL: the slippage rule blocks slip > maxSlippageBps (default 300), so a swap at EXACTLY 3% passes. An inclusive-cap boundary — a swap right at the limit still loses value. Mitigated by an inclusive bound (>=) or a lower cap. Generator stays private; the finding is frozen here.",
   },
 
   // ---- negative controls (SPEC §5): the shield must NOT block these, and honestly cannot help with the last two ----

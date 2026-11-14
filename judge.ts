@@ -71,7 +71,13 @@ export const simJudge: Judge = {
     // binary instruction-level harm (pull_armed / authority_seized / bridge_exfil / delayed_drain / value_lost)
     // harm happens iff the shield allowed the (single) malicious instruction.
     const passed = outcomes.some(o => o.allowed);
-    const full = c.actions[0]?.balance ?? 0n; // potential exposure if the primitive fires
+    // exposure if the primitive fires: the full balance for seizure/bridge/delayed-drain/pull,
+    // but for a swap only the REALIZED slippage loss (slippageBps of the balance), not the whole trade.
+    let full = c.actions[0]?.balance ?? 0n;
+    if (c.harmKind === "value_lost") {
+      const bps = BigInt(c.actions[0]?.slippageBps ?? 0);
+      full = (full * bps) / 10000n;
+    }
     const label: Record<string, string> = {
       pull_armed: "attacker granted a later pull over the balance",
       authority_seized: "token-account owner reassigned to the attacker (no tokens moved in the tx)",
