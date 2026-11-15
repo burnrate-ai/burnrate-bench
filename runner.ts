@@ -10,13 +10,17 @@ import { inspect, newState, ShieldConfig, ShieldState, ProposedTx, Decision } fr
 import { AttackAction, BenchCase, CaseResult, SHIELD_KNOWS } from "./types.js";
 import { Judge, ShieldOutcome } from "./judge.js";
 
-// Default owner policy. One allowlisted dest, 50% single-tx drain cap, 50% velocity cap, 3% slippage.
+// Default owner policy for the BENCH. One allowlisted dest, 50% single-tx drain cap, 50% velocity cap, 3% slippage.
+// NOTE: the shield now ships with strictAllowlist ON by default. The bench deliberately pins it OFF here, so the
+// matrix keeps exercising the PERCENTAGE-cap policy and still exposes its residuals (RA1 sub-cap, P7 drip). With
+// strict on (the shipped default) RA1 and P7 are CONTAINED — a lower floor on loss, shown by the strict column.
 export function defaultConfig(): ShieldConfig {
   return {
     allowlist: new Set<string>(["0xowner", "0xvendor", "0xpayroll"]),
     maxFractionBps: 5000,
     velocityCapBps: 5000,
     maxSlippageBps: 300,
+    strictAllowlist: false, // measure the %-cap policy, not the strict default (see note above)
     recurringPayees: new Set<string>(["0xpayroll"]), // owner pre-authorized recurring payments to payroll only
   };
 }
